@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiArrowLeft, FiArrowRight, FiShoppingBag, FiTruck, FiShield, FiPlay, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import { getProductById } from '../api';
+import { getProductById, getImageUrl } from '../api';
 import OrderModal from '../components/OrderModal';
 
 export default function ProductDetailPage() {
@@ -189,7 +189,7 @@ export default function ProductDetailPage() {
                     className="absolute inset-0"
                   >
                     <video
-                      src={videos[0]}
+                      src={getImageUrl(videos[0])}
                       className="w-full h-full object-cover"
                       autoPlay
                       loop
@@ -206,7 +206,7 @@ export default function ProductDetailPage() {
                 ) : (
                   <motion.img
                     key={selectedImage}
-                    src={images[selectedImage] || '/placeholder-product.jpg'}
+                    src={getImageUrl(images[selectedImage])}
                     alt={product.name}
                     className="w-full h-full object-cover"
                     initial={{ opacity: 0 }}
@@ -248,7 +248,7 @@ export default function ProductDetailPage() {
                         : 'border-transparent hover:border-gold-300'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={getImageUrl(img)} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
                 {hasVideo && (
@@ -260,7 +260,7 @@ export default function ProductDetailPage() {
                         : 'border-transparent hover:border-gold-300'
                     }`}
                   >
-                    <video src={videos[0]} className="w-full h-full object-cover opacity-70" muted />
+                    <video src={getImageUrl(videos[0])} className="w-full h-full object-cover opacity-70" muted />
                     <FiPlay className="absolute inset-0 m-auto w-6 h-6 text-white" />
                   </button>
                 )}

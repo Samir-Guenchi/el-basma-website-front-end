@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiCheck, FiPhone, FiUser, FiMapPin, FiMessageSquare, FiTruck, FiSearch, FiPlus, FiMinus } from 'react-icons/fi';
-import { createOrder, searchDelivery } from '../api';
+import { createOrder, searchDelivery, getImageUrl } from '../api';
 import toast from 'react-hot-toast';
 
 export default function OrderModal({ isOpen, onClose, product }) {
@@ -232,9 +232,9 @@ export default function OrderModal({ isOpen, onClose, product }) {
               <div className="p-4 bg-cream-50 border-b border-cream-200">
                 <div className="flex gap-4">
                   <img
-                    src={typeof product.images === 'string' 
+                    src={getImageUrl(typeof product.images === 'string' 
                       ? JSON.parse(product.images)[0] 
-                      : product.images?.[0] || '/placeholder-product.jpg'}
+                      : product.images?.[0])}
                     alt={product.name}
                     className="w-20 h-20 rounded-lg object-cover"
                   />

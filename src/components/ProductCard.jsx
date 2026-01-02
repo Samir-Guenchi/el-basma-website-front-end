@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FiShoppingBag, FiPlay, FiEye } from 'react-icons/fi';
+import { getImageUrl } from '../api';
 
 export default function ProductCard({ product, index = 0 }) {
   const { t, i18n } = useTranslation();
@@ -24,8 +25,8 @@ export default function ProductCard({ product, index = 0 }) {
 
   // Get first image or video
   const hasVideo = videos.length > 0;
-  const imageUrl = images[0] || '/placeholder-product.jpg';
-  const videoUrl = videos[0];
+  const imageUrl = getImageUrl(images[0]);
+  const videoUrl = videos[0] ? getImageUrl(videos[0]) : null;
 
   // Format price
   const formatPrice = (price) => {

@@ -11,6 +11,20 @@ const api = axios.create({
   },
 });
 
+// Helper function to convert relative image URLs to full URLs
+export const getImageUrl = (imagePath) => {
+  if (!imagePath) return '/placeholder-product.jpg';
+  
+  // Already a full URL
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath;
+  }
+  
+  // Relative path - add base URL
+  const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  return `${API_BASE_URL}${cleanPath}`;
+};
+
 // Products API
 export const getProducts = async () => {
   const response = await api.get('/api/products');
