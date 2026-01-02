@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FiShoppingBag, FiPlay, FiEye } from 'react-icons/fi';
-import { getImageUrl } from '../api';
+import { getImageUrl, parseImages } from '../api';
 
 export default function ProductCard({ product, index = 0 }) {
   const { t, i18n } = useTranslation();
@@ -11,13 +11,9 @@ export default function ProductCard({ product, index = 0 }) {
   const [showVideo, setShowVideo] = useState(false);
 
   // Parse product data
-  const images = typeof product.images === 'string' 
-    ? JSON.parse(product.images || '[]') 
-    : (product.images || []);
+  const images = parseImages(product.images);
   
-  const videos = typeof product.videos === 'string' 
-    ? JSON.parse(product.videos || '[]') 
-    : (product.videos || []);
+  const videos = parseImages(product.videos);
   
   const colors = typeof product.colors === 'string' 
     ? JSON.parse(product.colors || '[]') 

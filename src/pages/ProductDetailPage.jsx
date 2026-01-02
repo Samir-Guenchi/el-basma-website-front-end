@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiArrowLeft, FiArrowRight, FiShoppingBag, FiTruck, FiShield, FiPlay, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import { getProductById, getImageUrl } from '../api';
+import { getProductById, getImageUrl, parseImages } from '../api';
 import OrderModal from '../components/OrderModal';
 
 export default function ProductDetailPage() {
@@ -84,13 +84,9 @@ export default function ProductDetailPage() {
   }
 
   // Parse product data
-  const images = typeof product.images === 'string' 
-    ? JSON.parse(product.images || '[]') 
-    : (product.images || []);
+  const images = parseImages(product.images);
   
-  const videos = typeof product.videos === 'string' 
-    ? JSON.parse(product.videos || '[]') 
-    : (product.videos || []);
+  const videos = parseImages(product.videos);
   
   const colors = typeof product.colors === 'string' 
     ? JSON.parse(product.colors || '[]') 

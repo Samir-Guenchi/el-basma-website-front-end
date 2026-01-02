@@ -25,6 +25,30 @@ export const getImageUrl = (imagePath) => {
   return `${API_BASE_URL}${cleanPath}`;
 };
 
+// Helper function to parse images field (can be JSON array or single path)
+export const parseImages = (imagesField) => {
+  if (!imagesField) return [];
+  
+  // Already an array
+  if (Array.isArray(imagesField)) return imagesField;
+  
+  // It's a string
+  if (typeof imagesField === 'string') {
+    // Try to parse as JSON array
+    if (imagesField.startsWith('[')) {
+      try {
+        return JSON.parse(imagesField);
+      } catch (e) {
+        return [imagesField];
+      }
+    }
+    // Single path string - wrap in array
+    return [imagesField];
+  }
+  
+  return [];
+};
+
 // Products API
 export const getProducts = async () => {
   const response = await api.get('/api/products');
