@@ -1,0 +1,217 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+:root {
+  --color-primary: #cc4535;
+  --color-gold: #dbb43d;
+  --color-cream: #f8f1e3;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Tajawal', 'Cairo', sans-serif;
+  background-color: #fefdfb;
+  color: #1a1a1a;
+  line-height: 1.6;
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="ltr"] {
+  text-align: left;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f8f1e3;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #dbb43d;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c99d2e;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.animate-pulse-gentle {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Product card hover effects */
+.product-card {
+  transition: all 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.05);
+}
+
+.product-image {
+  transition: transform 0.5s ease;
+}
+
+/* Button styles */
+.btn-primary {
+  @apply bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-3 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105;
+}
+
+.btn-gold {
+  @apply bg-gradient-to-r from-gold-400 to-gold-500 text-white px-6 py-3 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105;
+}
+
+.btn-outline {
+  @apply border-2 border-gold-400 text-gold-600 px-6 py-3 rounded-full font-medium hover:bg-gold-400 hover:text-white transition-all duration-300;
+}
+
+/* Arabic decorative elements */
+.ornament {
+  position: relative;
+}
+
+.ornament::before,
+.ornament::after {
+  content: '✧';
+  color: #dbb43d;
+  margin: 0 0.5rem;
+}
+
+/* Video player styles */
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.video-container video,
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* Form styles */
+.form-input {
+  @apply w-full px-4 py-3 rounded-lg border-2 border-cream-300 focus:border-gold-400 focus:ring-2 focus:ring-gold-200 outline-none transition-all duration-300 bg-white;
+}
+
+.form-label {
+  @apply block text-gray-700 font-medium mb-2;
+}
+
+/* Category tabs */
+.category-tab {
+  @apply px-6 py-3 rounded-full font-medium transition-all duration-300 cursor-pointer;
+}
+
+.category-tab.active {
+  @apply bg-gradient-to-r from-gold-400 to-gold-500 text-white shadow-lg;
+}
+
+.category-tab:not(.active) {
+  @apply bg-cream-100 text-gray-600 hover:bg-cream-200;
+}
+
+/* Discount badge */
+.discount-badge {
+  @apply absolute top-3 left-3 bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg;
+}
+
+/* Floating WhatsApp button */
+.whatsapp-float {
+  @apply fixed bottom-6 right-6 z-50 bg-green-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110;
+}
+
+/* Hero section gradient */
+.hero-gradient {
+  background: linear-gradient(135deg, rgba(204, 69, 53, 0.9) 0%, rgba(171, 55, 40, 0.95) 100%);
+}
+
+/* Gold text gradient */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #dbb43d 0%, #c99d2e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Image placeholder */
+.image-placeholder {
+  @apply bg-cream-200 flex items-center justify-center;
+}
+
+/* Toast customization */
+.toast-success {
+  @apply bg-green-500 text-white;
+}
+
+.toast-error {
+  @apply bg-red-500 text-white;
+}
