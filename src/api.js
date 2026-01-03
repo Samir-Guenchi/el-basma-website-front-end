@@ -1,11 +1,13 @@
 import axios from 'axios';
 
-// API Base URL - Railway production server
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://web-production-1c70.up.railway.app';
+// API Base URL - Railway production server (hardcoded for reliability)
+const API_BASE_URL = 'https://web-production-1c70.up.railway.app';
+
+console.log('API Base URL:', API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
   },
