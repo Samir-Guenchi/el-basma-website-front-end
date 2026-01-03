@@ -49,9 +49,9 @@ export const parseImages = (imagesField) => {
   return [];
 };
 
-// Products API
+// Products API - Only fetch products published on website
 export const getProducts = async () => {
-  const response = await api.get('/api/products');
+  const response = await api.get('/api/products?publishedOnWebsite=true');
   return response.data;
 };
 
