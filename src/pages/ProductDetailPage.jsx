@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiArrowLeft, FiArrowRight, FiShoppingBag, FiTruck, FiShield, FiPlay, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiArrowLeft, FiArrowRight, FiShoppingBag, FiTruck, FiShield, FiPlay, FiX, FiChevronLeft, FiChevronRight, FiShare2 } from 'react-icons/fi';
 import { getProductById, getImageUrl, parseImages } from '../api';
 import OrderModal from '../components/OrderModal';
 
@@ -20,6 +20,29 @@ export default function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [inventory, setInventory] = useState({});
+
+  // Share product function
+  const handleShare = async () => {
+    const shareData = {
+      title: product?.name || 'Djellaba El Basma',
+      text: `${product?.name} - ${product?.price?.toLocaleString()} DA\n${product?.description || ''}`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback: copy link to clipboard
+        await navigator.clipboard.writeText(window.location.href);
+        alert(i18n.language.startsWith('ar') || i18n.language === 'dz' 
+          ? 'تم نسخ الرابط!' 
+          : 'Lien copié!');
+      }
+    } catch (err) {
+      console.log('Share failed:', err);
+    }
+  };
 
   useEffect(() => {
     fetchProduct();
@@ -271,10 +294,19 @@ export default function ProductDetailPage() {
               {product.category}
             </span>
 
-            {/* Name */}
-            <h1 className="text-3xl md:text-4xl font-bold font-display text-gray-800">
-              {product.name}
-            </h1>
+            {/* Name & Share */}
+            <div className="flex items-start justify-between gap-4">
+              <h1 className="text-3xl md:text-4xl font-bold font-display text-gray-800 flex-1">
+                {product.name}
+              </h1>
+              <button
+                onClick={handleShare}
+                className="w-12 h-12 bg-gold-100 hover:bg-gold-200 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
+                title={i18n.language.startsWith('ar') || i18n.language === 'dz' ? 'مشاركة' : 'Partager'}
+              >
+                <FiShare2 className="w-5 h-5 text-gold-600" />
+              </button>
+            </div>
 
             {/* Price */}
             <div className="space-y-2">
