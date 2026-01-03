@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { FiShoppingBag, FiPlay, FiEye } from 'react-icons/fi';
+import { FiShoppingBag, FiPlay, FiEye, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { getImageUrl, parseImages } from '../api';
 
 export default function ProductCard({ product, index = 0 }) {
   const { t, i18n } = useTranslation();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Parse product data
   const images = parseImages(product.images);
@@ -21,7 +22,8 @@ export default function ProductCard({ product, index = 0 }) {
 
   // Get first image or video
   const hasVideo = videos.length > 0;
-  const imageUrl = getImageUrl(images[0]);
+  const hasMultipleImages = images.length > 1;
+  const imageUrl = getImageUrl(images[currentImageIndex] || images[0]);
   const videoUrl = videos[0] ? getImageUrl(videos[0]) : null;
 
   // Format price
@@ -31,6 +33,19 @@ export default function ProductCard({ product, index = 0 }) {
 
   // Check stock status
   const inStock = product.inStock && product.quantity > 0;
+
+  // Image navigation
+  const nextImage = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+  
+  const prevImage = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
 
   return (
     <motion.div
@@ -46,14 +61,59 @@ export default function ProductCard({ product, index = 0 }) {
           -15%
         </div>
 
+        {/* Image Counter Badge */}
+        {hasMultipleImages && !showVideo && (
+          <div className="absolute top-3 end-3 z-10 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+            {currentImageIndex + 1}/{images.length}
+          </div>
+        )}
+
         {/* Video Play Button (if has video) */}
-        {hasVideo && (
+        {hasVideo && !hasMultipleImages && (
           <button
-            onClick={() => setShowVideo(true)}
+            onClick={(e) => { e.preventDefault(); setShowVideo(true); }}
             className="absolute top-3 end-3 z-10 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors"
           >
             <FiPlay className="w-5 h-5 text-primary-600 ms-0.5" />
           </button>
+        )}
+
+        {/* Image Navigation Arrows - Always visible */}
+        {hasMultipleImages && !showVideo && (
+          <>
+            <button
+              onClick={prevImage}
+              className="absolute start-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+            >
+              <FiChevronLeft className="w-5 h-5 text-gray-700" />
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute end-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+            >
+              <FiChevronRight className="w-5 h-5 text-gray-700" />
+            </button>
+          </>
+        )}
+
+        {/* Image Dots Indicator - Always visible */}
+        {hasMultipleImages && !showVideo && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-2 bg-black/30 px-3 py-1.5 rounded-full">
+            {images.slice(0, 5).map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => { e.preventDefault(); setCurrentImageIndex(i); }}
+                className={`rounded-full transition-all ${
+                  currentImageIndex === i 
+                    ? 'bg-white w-5 h-2' 
+                    : 'bg-white/60 hover:bg-white/90 w-2 h-2'
+                }`}
+              />
+            ))}
+            {images.length > 5 && (
+              <span className="text-white text-xs font-medium">+{images.length - 5}</span>
+            )}
+          </div>
         )}
 
         {/* Image */}
@@ -65,7 +125,7 @@ export default function ProductCard({ product, index = 0 }) {
             <img
               src={imageUrl}
               alt={product.name}
-              className={`product-image w-full h-full object-cover ${
+              className={`product-image w-full h-full object-cover transition-opacity ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
               onLoad={() => setImageLoaded(true)}
@@ -87,7 +147,7 @@ export default function ProductCard({ product, index = 0 }) {
               controls
             />
             <button
-              onClick={() => setShowVideo(false)}
+              onClick={(e) => { e.preventDefault(); setShowVideo(false); }}
               className="absolute top-3 end-3 z-10 w-8 h-8 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
             >
               ✕
