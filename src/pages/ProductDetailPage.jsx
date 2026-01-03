@@ -6,6 +6,24 @@ import { FiArrowLeft, FiArrowRight, FiShoppingBag, FiTruck, FiShield, FiPlay, Fi
 import { getProductById, getImageUrl, parseImages } from '../api';
 import OrderModal from '../components/OrderModal';
 
+// Optimize Cloudinary images for faster loading
+const getOptimizedImageUrl = (url, width = 800) => {
+  if (!url) return '';
+  if (url.includes('cloudinary.com')) {
+    return url.replace('/upload/', `/upload/w_${width},q_auto,f_auto/`);
+  }
+  return url;
+};
+
+// Get thumbnail URL (smaller size)
+const getThumbnailUrl = (url) => {
+  if (!url) return '';
+  if (url.includes('cloudinary.com')) {
+    return url.replace('/upload/', '/upload/w_100,h_100,c_fill,q_auto,f_auto/');
+  }
+  return url;
+};
+
 export default function ProductDetailPage() {
   const { id } = useParams();
   const { t, i18n } = useTranslation();
@@ -214,6 +232,7 @@ export default function ProductDetailPage() {
                       loop
                       controls
                       playsInline
+                      preload="none"
                     />
                     <button
                       onClick={() => setShowVideo(false)}
@@ -225,12 +244,14 @@ export default function ProductDetailPage() {
                 ) : (
                   <motion.img
                     key={selectedImage}
-                    src={getImageUrl(images[selectedImage])}
+                    src={getOptimizedImageUrl(getImageUrl(images[selectedImage]), 800)}
                     alt={product.name}
                     className="w-full h-full object-cover"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
+                    loading="eager"
+                    decoding="async"
                   />
                 )}
               </AnimatePresence>
@@ -267,7 +288,13 @@ export default function ProductDetailPage() {
                         : 'border-transparent hover:border-gold-300'
                     }`}
                   >
-                    <img src={getImageUrl(img)} alt="" className="w-full h-full object-cover" />
+                    <img 
+                      src={getThumbnailUrl(getImageUrl(img))} 
+                      alt="" 
+                      className="w-full h-full object-cover" 
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </button>
                 ))}
                 {hasVideo && (
@@ -279,8 +306,9 @@ export default function ProductDetailPage() {
                         : 'border-transparent hover:border-gold-300'
                     }`}
                   >
-                    <video src={getImageUrl(videos[0])} className="w-full h-full object-cover opacity-70" muted />
-                    <FiPlay className="absolute inset-0 m-auto w-6 h-6 text-white" />
+                    <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                      <FiPlay className="w-6 h-6 text-white" />
+                    </div>
                   </button>
                 )}
               </div>

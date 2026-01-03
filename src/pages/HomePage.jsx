@@ -180,7 +180,7 @@ export default function HomePage() {
           {/* Products Grid */}
           {loading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {[...Array(8)].map((_, i) => (
+              {[...Array(4)].map((_, i) => (
                 <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-md">
                   <div className="aspect-[3/4] skeleton" />
                   <div className="p-4 space-y-3">
@@ -193,7 +193,7 @@ export default function HomePage() {
             </div>
           ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {filteredProducts.slice(0, 12).map((product, index) => (
+              {filteredProducts.slice(0, 8).map((product, index) => (
                 <ProductCard key={product.id} product={product} index={index} />
               ))}
             </div>

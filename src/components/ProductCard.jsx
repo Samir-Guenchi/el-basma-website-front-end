@@ -1,15 +1,46 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FiShoppingBag, FiPlay, FiEye, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { getImageUrl, parseImages } from '../api';
 
+// Optimize Cloudinary images for faster loading
+const getOptimizedImageUrl = (url, width = 400) => {
+  if (!url) return '';
+  // If it's a Cloudinary URL, add transformation
+  if (url.includes('cloudinary.com')) {
+    return url.replace('/upload/', `/upload/w_${width},q_auto,f_auto/`);
+  }
+  return url;
+};
+
 export default function ProductCard({ product, index = 0 }) {
   const { t, i18n } = useTranslation();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const cardRef = useRef(null);
+
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '100px' }
+    );
+    
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+    
+    return () => observer.disconnect();
+  }, []);
 
   // Parse product data
   const images = parseImages(product.images);
@@ -23,7 +54,8 @@ export default function ProductCard({ product, index = 0 }) {
   // Get first image or video
   const hasVideo = videos.length > 0;
   const hasMultipleImages = images.length > 1;
-  const imageUrl = getImageUrl(images[currentImageIndex] || images[0]);
+  const rawImageUrl = getImageUrl(images[currentImageIndex] || images[0]);
+  const imageUrl = getOptimizedImageUrl(rawImageUrl, 400);
   const videoUrl = videos[0] ? getImageUrl(videos[0]) : null;
 
   // Format price
@@ -49,9 +81,10 @@ export default function ProductCard({ product, index = 0 }) {
 
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      transition={{ duration: 0.5, delay: index * 0.05 }}
       className="product-card group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-cream-200"
     >
       {/* Image/Video Container */}
@@ -116,25 +149,28 @@ export default function ProductCard({ product, index = 0 }) {
           </div>
         )}
 
-        {/* Image */}
+        {/* Image - Only load when visible */}
         {!showVideo && (
           <>
             {!imageLoaded && (
               <div className="absolute inset-0 skeleton" />
             )}
-            <img
-              src={imageUrl}
-              alt={product.name}
-              className={`product-image w-full h-full object-cover transition-opacity ${
-                imageLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
-              onLoad={() => setImageLoaded(true)}
-              loading="lazy"
-            />
+            {isVisible && (
+              <img
+                src={imageUrl}
+                alt={product.name}
+                className={`product-image w-full h-full object-cover transition-opacity duration-300 ${
+                  imageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                onLoad={() => setImageLoaded(true)}
+                loading="lazy"
+                decoding="async"
+              />
+            )}
           </>
         )}
 
-        {/* Video */}
+        {/* Video - Only load when requested */}
         {showVideo && videoUrl && (
           <div className="absolute inset-0">
             <video
@@ -145,6 +181,7 @@ export default function ProductCard({ product, index = 0 }) {
               muted
               playsInline
               controls
+              preload="none"
             />
             <button
               onClick={(e) => { e.preventDefault(); setShowVideo(false); }}
