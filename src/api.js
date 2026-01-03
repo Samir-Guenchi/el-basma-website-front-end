@@ -53,8 +53,16 @@ export const parseImages = (imagesField) => {
 
 // Products API - Only fetch products published on website
 export const getProducts = async () => {
-  const response = await api.get('/api/products?publishedOnWebsite=true');
-  return response.data;
+  try {
+    console.log('Fetching products from:', API_BASE_URL + '/api/products?publishedOnWebsite=true');
+    const response = await api.get('/api/products?publishedOnWebsite=true');
+    console.log('Products fetched successfully:', response.data?.length || 0, 'items');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching products:', error.message);
+    console.error('Error details:', error.response?.status, error.response?.data);
+    throw error;
+  }
 };
 
 export const getProductById = async (id) => {
