@@ -7,11 +7,27 @@ console.log('API Base URL:', API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 15000,
+  timeout: 30000, // 30 seconds timeout
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+// Retry logic for failed requests
+api.interceptors.response.use(
+  response => response,
+  async error => {
+    const config = error.config;
+    if (!config || config.__retryCount >= 2) {
+      return Promise.reject(error);
+    }
+    config.__retryCount = config.__retryCount || 0;
+    config.__retryCount++;
+    console.log(`Retrying request (${config.__retryCount}/2):`, config.url);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return api(config);
+  }
+);
 
 // Helper function to convert relative image URLs to full URLs
 export const getImageUrl = (imagePath) => {
