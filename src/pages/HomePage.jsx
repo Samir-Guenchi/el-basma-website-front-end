@@ -11,6 +11,7 @@ export default function HomePage() {
   const { t, i18n } = useTranslation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState('djellaba'); // Djellaba as default
   const isRTL = ['ar', 'dz'].includes(i18n.language);
 
@@ -20,10 +21,12 @@ export default function HomePage() {
 
   const fetchProducts = async () => {
     try {
+      setError(null);
       const data = await getProducts();
-      setProducts(data);
+      setProducts(data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
+      setError(error.message || 'Failed to load products');
     } finally {
       setLoading(false);
     }
@@ -190,6 +193,16 @@ export default function HomePage() {
                   </div>
                 </div>
               ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <p className="text-red-500 text-lg mb-4">{error}</p>
+              <button 
+                onClick={fetchProducts}
+                className="btn-outline"
+              >
+                {t('retry') || 'Retry'}
+              </button>
             </div>
           ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">

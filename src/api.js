@@ -7,7 +7,7 @@ console.log('API Base URL:', API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000, // 30 seconds timeout
+  timeout: 60000, // 60 seconds timeout (increased for slow connections)
   headers: {
     'Content-Type': 'application/json',
   },
@@ -18,13 +18,27 @@ api.interceptors.response.use(
   response => response,
   async error => {
     const config = error.config;
-    if (!config || config.__retryCount >= 2) {
+    
+    // Don't retry if no config or already retried 3 times
+    if (!config || config.__retryCount >= 3) {
+      console.error('API request failed after retries:', error.message);
       return Promise.reject(error);
     }
+    
+    // Only retry on network errors or 5xx server errors
+    const shouldRetry = !error.response || (error.response.status >= 500 && error.response.status < 600);
+    if (!shouldRetry) {
+      return Promise.reject(error);
+    }
+    
     config.__retryCount = config.__retryCount || 0;
     config.__retryCount++;
-    console.log(`Retrying request (${config.__retryCount}/2):`, config.url);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Exponential backoff: 1s, 2s, 4s
+    const delay = Math.pow(2, config.__retryCount - 1) * 1000;
+    console.log(`Retrying request (${config.__retryCount}/3) after ${delay}ms:`, config.url);
+    
+    await new Promise(resolve => setTimeout(resolve, delay));
     return api(config);
   }
 );
