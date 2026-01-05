@@ -18,7 +18,6 @@ const getOptimizedImageUrl = (url, width = 400) => {
 export default function ProductCard({ product, index = 0 }) {
   const { t, i18n } = useTranslation();
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const cardRef = useRef(null);
@@ -56,7 +55,6 @@ export default function ProductCard({ product, index = 0 }) {
   const hasMultipleImages = images.length > 1;
   const rawImageUrl = getImageUrl(images[currentImageIndex] || images[0]);
   const imageUrl = getOptimizedImageUrl(rawImageUrl, 400);
-  const videoUrl = videos[0] ? getImageUrl(videos[0]) : null;
 
   // Format price
   const formatPrice = (price) => {
@@ -95,24 +93,22 @@ export default function ProductCard({ product, index = 0 }) {
         </div>
 
         {/* Image Counter Badge */}
-        {hasMultipleImages && !showVideo && (
+        {hasMultipleImages && (
           <div className="absolute top-3 end-3 z-10 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
             {currentImageIndex + 1}/{images.length}
           </div>
         )}
 
-        {/* Video Play Button (if has video) */}
-        {hasVideo && !hasMultipleImages && (
-          <button
-            onClick={(e) => { e.preventDefault(); setShowVideo(true); }}
-            className="absolute top-3 end-3 z-10 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors"
-          >
-            <FiPlay className="w-5 h-5 text-primary-600 ms-0.5" />
-          </button>
+        {/* Video Indicator Badge (shows video is available in detail page) */}
+        {hasVideo && (
+          <div className="absolute top-3 start-3 z-10 bg-primary-600/90 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 shadow-lg">
+            <FiPlay className="w-3 h-3" />
+            <span>Vidéo</span>
+          </div>
         )}
 
         {/* Image Navigation Arrows - Always visible */}
-        {hasMultipleImages && !showVideo && (
+        {hasMultipleImages && (
           <>
             <button
               onClick={prevImage}
@@ -130,7 +126,7 @@ export default function ProductCard({ product, index = 0 }) {
         )}
 
         {/* Image Dots Indicator - Always visible */}
-        {hasMultipleImages && !showVideo && (
+        {hasMultipleImages && (
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-2 bg-black/30 px-3 py-1.5 rounded-full">
             {images.slice(0, 5).map((_, i) => (
               <button
@@ -149,48 +145,24 @@ export default function ProductCard({ product, index = 0 }) {
           </div>
         )}
 
-        {/* Image - Only load when visible */}
-        {!showVideo && (
-          <>
-            {!imageLoaded && (
-              <div className="absolute inset-0 skeleton" />
-            )}
-            {isVisible && (
-              <img
-                src={imageUrl}
-                alt={product.name}
-                className={`product-image w-full h-full object-cover transition-opacity duration-300 ${
-                  imageLoaded ? 'opacity-100' : 'opacity-0'
-                }`}
-                onLoad={() => setImageLoaded(true)}
-                loading="lazy"
-                decoding="async"
-              />
-            )}
-          </>
-        )}
-
-        {/* Video - Only load when requested */}
-        {showVideo && videoUrl && (
-          <div className="absolute inset-0">
-            <video
-              src={videoUrl}
-              className="w-full h-full object-cover"
-              autoPlay
-              loop
-              muted
-              playsInline
-              controls
-              preload="none"
+        {/* Image - Only load when visible, NEVER show video on card */}
+        <>
+          {!imageLoaded && (
+            <div className="absolute inset-0 skeleton" />
+          )}
+          {isVisible && (
+            <img
+              src={imageUrl}
+              alt={product.name}
+              className={`product-image w-full h-full object-cover transition-opacity duration-300 ${
+                imageLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              onLoad={() => setImageLoaded(true)}
+              loading="lazy"
+              decoding="async"
             />
-            <button
-              onClick={(e) => { e.preventDefault(); setShowVideo(false); }}
-              className="absolute top-3 end-3 z-10 w-8 h-8 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-            >
-              ✕
-            </button>
-          </div>
-        )}
+          )}
+        </>
 
         {/* Quick View Overlay */}
         <Link
