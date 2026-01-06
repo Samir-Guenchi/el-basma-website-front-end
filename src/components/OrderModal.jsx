@@ -20,6 +20,8 @@ export default function OrderModal({ isOpen, onClose, product }) {
     customerAddress: '',
     notes: '',
   });
+  
+  const [formErrors, setFormErrors] = useState({});
 
   // Items array for multiple products with different colors/sizes
   const [items, setItems] = useState([{ color: '', size: '' }]);
@@ -103,6 +105,11 @@ export default function OrderModal({ isOpen, onClose, product }) {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
+    // Clear error for this field when user starts typing
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
+    
     // Auto-check delivery when city field changes
     if (name === 'customerCity') {
       // Debounce: wait 500ms after user stops typing
@@ -126,9 +133,41 @@ export default function OrderModal({ isOpen, onClose, product }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation
-    if (!formData.customerName || !formData.customerPhone || !formData.customerCity) {
-      toast.error(t('orderError'));
+    // Enhanced validation with specific error messages
+    const errors = [];
+    
+    if (!formData.customerName || formData.customerName.trim().length < 3) {
+      errors.push(t('nameRequired') || 'الاسم الكامل مطلوب (3 أحرف على الأقل)');
+    }
+    
+    if (!formData.customerPhone || formData.customerPhone.trim().length < 10) {
+      errors.push(t('phoneRequired') || 'رقم الهاتف مطلوب (10 أرقام على الأقل)');
+    }
+    
+    if (!formData.customerCity || formData.customerCity.trim().length < 2) {
+      errors.push(t('cityRequired') || 'الولاية مطلوبة');
+    }
+    
+    if (!formData.customerAddress || formData.customerAddress.trim().length < 5) {
+      errors.push(t('addressRequired') || 'العنوان مطلوب (5 أحرف على الأقل)');
+    }
+    
+    // Validate items (color/size if available)
+    if (colors.length > 0 || sizes.length > 0) {
+      const hasEmptyItems = items.some(item => {
+        if (colors.length > 0 && !item.color) return true;
+        if (sizes.length > 0 && !item.size) return true;
+        return false;
+      });
+      
+      if (hasEmptyItems) {
+        errors.push(t('selectColorSize') || 'يرجى اختيار اللون والمقاس لجميع المنتجات');
+      }
+    }
+    
+    // Show all errors
+    if (errors.length > 0) {
+      errors.forEach(error => toast.error(error, { duration: 4000 }));
       return;
     }
 
@@ -142,10 +181,10 @@ export default function OrderModal({ isOpen, onClose, product }) {
         : formData.notes;
 
       await createOrder({
-        customerName: formData.customerName,
-        customerPhone: formData.customerPhone,
-        city: formData.customerCity,
-        address: formData.customerAddress,
+        customerName: formData.customerName.trim(),
+        customerPhone: formData.customerPhone.trim(),
+        city: formData.customerCity.trim(),
+        address: formData.customerAddress.trim(),
         productId: product.id,
         productName: product.name,
         quantity: items.length,
@@ -280,9 +319,13 @@ export default function OrderModal({ isOpen, onClose, product }) {
                     name="customerName"
                     value={formData.customerName}
                     onChange={handleChange}
-                    className="form-input"
+                    className={`form-input ${formErrors.customerName ? 'border-red-500 focus:border-red-500' : ''}`}
                     required
+                    minLength={3}
                   />
+                  {formErrors.customerName && (
+                    <p className="text-sm text-red-500 mt-1">{formErrors.customerName}</p>
+                  )}
                 </div>
 
                 {/* Phone */}
@@ -296,11 +339,15 @@ export default function OrderModal({ isOpen, onClose, product }) {
                     name="customerPhone"
                     value={formData.customerPhone}
                     onChange={handleChange}
-                    className="form-input"
+                    className={`form-input ${formErrors.customerPhone ? 'border-red-500 focus:border-red-500' : ''}`}
                     placeholder="0550 00 00 00"
                     dir="ltr"
                     required
+                    minLength={10}
                   />
+                  {formErrors.customerPhone && (
+                    <p className="text-sm text-red-500 mt-1">{formErrors.customerPhone}</p>
+                  )}
                 </div>
 
                 {/* City */}
@@ -315,7 +362,7 @@ export default function OrderModal({ isOpen, onClose, product }) {
                       name="customerCity"
                       value={formData.customerCity}
                       onChange={handleChange}
-                      className="form-input"
+                      className={`form-input ${formErrors.customerCity ? 'border-red-500 focus:border-red-500' : ''}`}
                       placeholder={t('enterWilaya')}
                       required
                     />
@@ -325,6 +372,9 @@ export default function OrderModal({ isOpen, onClose, product }) {
                       </div>
                     )}
                   </div>
+                  {formErrors.customerCity && (
+                    <p className="text-sm text-red-500 mt-1">{formErrors.customerCity}</p>
+                  )}
                   
                   {/* Delivery Price Display */}
                   {deliveryInfo && (
@@ -364,14 +414,19 @@ export default function OrderModal({ isOpen, onClose, product }) {
 
                 {/* Address */}
                 <div>
-                  <label className="form-label">{t('address')}</label>
+                  <label className="form-label">{t('address')} *</label>
                   <input
                     type="text"
                     name="customerAddress"
                     value={formData.customerAddress}
                     onChange={handleChange}
-                    className="form-input"
+                    className={`form-input ${formErrors.customerAddress ? 'border-red-500 focus:border-red-500' : ''}`}
+                    required
+                    minLength={5}
                   />
+                  {formErrors.customerAddress && (
+                    <p className="text-sm text-red-500 mt-1">{formErrors.customerAddress}</p>
+                  )}
                 </div>
 
                 {/* Items List - Color & Size for each item */}
