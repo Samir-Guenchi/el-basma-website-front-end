@@ -111,10 +111,10 @@ export default function Footer() {
       <div className="border-t border-gray-800">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-400 text-sm">
               © {new Date().getFullYear()} {t('brand')}. {t('rights')}
             </p>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-400 text-sm">
               {t('madeWith')}
             </p>
           </div>

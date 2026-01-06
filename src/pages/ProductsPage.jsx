@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { LazyMotion, domAnimation, m } from 'framer-motion';
 import { FiSearch, FiGrid, FiList } from 'react-icons/fi';
 import ProductCard from '../components/ProductCard';
 import CategoryFilter from '../components/CategoryFilter';
@@ -136,16 +136,18 @@ export default function ProductsPage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Category Filter */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <CategoryFilter
-            activeCategory={activeCategory}
-            onCategoryChange={handleCategoryChange}
-          />
-        </motion.div>
+        <LazyMotion features={domAnimation}>
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <CategoryFilter
+              activeCategory={activeCategory}
+              onCategoryChange={handleCategoryChange}
+            />
+          </m.div>
+        </LazyMotion>
 
         {/* Results Count */}
         <div className="mb-6 text-gray-600">

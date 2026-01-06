@@ -23,6 +23,10 @@ export default defineConfig({
     minify: 'esbuild',
     target: 'es2015',
   },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', 'framer-motion'],
+  },
   server: {
     port: 5173,
     proxy: {

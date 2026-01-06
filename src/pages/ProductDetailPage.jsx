@@ -7,10 +7,10 @@ import { getProductById, getImageUrl, parseImages } from '../api';
 import OrderModal from '../components/OrderModal';
 
 // Optimize Cloudinary images for faster loading
-const getOptimizedImageUrl = (url, width = 800) => {
+const getOptimizedImageUrl = (url, width = 700) => {
   if (!url) return '';
   if (url.includes('cloudinary.com')) {
-    return url.replace('/upload/', `/upload/w_${width},q_auto,f_auto/`);
+    return url.replace('/upload/', `/upload/w_${width},q_auto,f_auto,dpr_auto/`);
   }
   return url;
 };
@@ -244,13 +244,14 @@ export default function ProductDetailPage() {
                 ) : (
                   <motion.img
                     key={selectedImage}
-                    src={getOptimizedImageUrl(getImageUrl(images[selectedImage]), 800)}
+                    src={getOptimizedImageUrl(getImageUrl(images[selectedImage]), 700)}
                     alt={product.name}
                     className="w-full h-full object-cover"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     loading="eager"
+                    fetchpriority="high"
                     decoding="async"
                   />
                 )}
@@ -262,12 +263,14 @@ export default function ProductDetailPage() {
                   <button
                     onClick={prevImage}
                     className="absolute start-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors"
+                    aria-label={isRTL ? 'الصورة التالية' : 'Image suivante'}
                   >
                     {isRTL ? <FiChevronRight className="w-5 h-5" /> : <FiChevronLeft className="w-5 h-5" />}
                   </button>
                   <button
                     onClick={nextImage}
                     className="absolute end-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors"
+                    aria-label={isRTL ? 'الصورة السابقة' : 'Image précédente'}
                   >
                     {isRTL ? <FiChevronLeft className="w-5 h-5" /> : <FiChevronRight className="w-5 h-5" />}
                   </button>
@@ -287,10 +290,11 @@ export default function ProductDetailPage() {
                         ? 'border-gold-500' 
                         : 'border-transparent hover:border-gold-300'
                     }`}
+                    aria-label={`${isRTL ? 'عرض الصورة' : 'Voir image'} ${i + 1}`}
                   >
                     <img 
                       src={getThumbnailUrl(getImageUrl(img))} 
-                      alt="" 
+                      alt={`${product.name} - ${isRTL ? 'صورة' : 'image'} ${i + 1}`}
                       className="w-full h-full object-cover" 
                       loading="lazy"
                       decoding="async"
@@ -305,6 +309,7 @@ export default function ProductDetailPage() {
                         ? 'border-gold-500' 
                         : 'border-transparent hover:border-gold-300'
                     }`}
+                    aria-label={isRTL ? 'تشغيل الفيديو' : 'Lire la vidéo'}
                   >
                     <div className="w-full h-full bg-gray-800 flex items-center justify-center">
                       <FiPlay className="w-6 h-6 text-white" />
@@ -367,7 +372,7 @@ export default function ProductDetailPage() {
             {/* Colors */}
             {colors.length > 0 && (
               <div>
-                <h3 className="font-medium text-gray-800 mb-3">{t('colors')}</h3>
+                <h2 className="font-medium text-gray-800 mb-3 text-lg">{t('colors')}</h2>
                 <div className="flex flex-wrap gap-3">
                   {colors.map((color, i) => {
                     const colorStock = getColorStock(color);
@@ -409,7 +414,7 @@ export default function ProductDetailPage() {
             {/* Sizes */}
             {sizes.length > 0 && (
               <div>
-                <h3 className="font-medium text-gray-800 mb-3">{t('sizes')}</h3>
+                <h2 className="font-medium text-gray-800 mb-3 text-lg">{t('sizes')}</h2>
                 <div className="flex flex-wrap gap-3">
                   {sizes.map((size, i) => {
                     const variantStock = selectedColor ? getVariantStock(selectedColor, size) : null;
@@ -469,14 +474,14 @@ export default function ProductDetailPage() {
 
             {/* Quantity */}
             <div>
-              <h3 className="font-medium text-gray-800 mb-3">
+              <h2 className="font-medium text-gray-800 mb-3 text-lg">
                 {t('quantity')} 
                 {maxQuantity > 0 && (
                   <span className="text-sm font-normal text-gray-500 ms-2">
                     ({t('max')}: {maxQuantity})
                   </span>
                 )}
-              </h3>
+              </h2>
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -555,7 +560,7 @@ export default function ProductDetailPage() {
             {/* Description */}
             {product.description && (
               <div className="pt-6 border-t border-cream-200">
-                <h3 className="font-bold text-gray-800 mb-3">{t('description')}</h3>
+                <h2 className="font-bold text-gray-800 mb-3 text-lg">{t('description')}</h2>
                 <p className="text-gray-600 leading-relaxed">{product.description}</p>
               </div>
             )}
