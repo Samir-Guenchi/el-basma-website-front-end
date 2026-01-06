@@ -10,9 +10,8 @@ import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import WhatsAppButton from './components/WhatsAppButton';
-import { ThemeProvider } from './contexts/ThemeContext';
 
-function AppContent() {
+function App() {
   const { i18n } = useTranslation();
   const [direction, setDirection] = useState('rtl');
 
@@ -65,14 +64,6 @@ function AppContent() {
       
       <WhatsAppButton />
     </div>
-  );
-}
-
-function App() {
-  return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
   );
 }
 
