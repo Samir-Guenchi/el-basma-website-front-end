@@ -186,7 +186,29 @@ body {
 
 /* Floating WhatsApp button */
 .whatsapp-float {
-  @apply fixed bottom-6 right-6 z-50 bg-green-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110;
+  @apply fixed z-50 bg-green-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110;
+  /* Mobile: smaller padding, bottom-right with safe spacing */
+  padding: 0.875rem; /* 14px */
+  bottom: 1rem;
+  right: 1rem;
+}
+
+/* Tablet and up: more spacing and larger button */
+@media (min-width: 768px) {
+  .whatsapp-float {
+    padding: 1rem; /* 16px */
+    bottom: 1.5rem;
+    right: 1.5rem;
+  }
+}
+
+/* Desktop: original spacing and size */
+@media (min-width: 1024px) {
+  .whatsapp-float {
+    padding: 1rem; /* 16px */
+    bottom: 2rem;
+    right: 2rem;
+  }
 }
 
 /* Hero section gradient */
