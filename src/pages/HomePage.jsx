@@ -139,7 +139,7 @@ export default function HomePage() {
                 className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm"
               >
                 <div className="w-12 h-12 bg-gold-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <feature.icon className="w-6 h-6 text-gold-600" />
+                  <feature.icon className="w-6 h-6 text-gold-700" />
                 </div>
                 <span className="text-sm font-medium text-gray-700">
                   {isRTL ? feature.titleAr : feature.titleFr}
@@ -253,7 +253,7 @@ export default function HomePage() {
             </p>
             <Link
               to="/products"
-              className="bg-white text-gold-600 px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all inline-flex items-center gap-2"
+              className="bg-white text-gold-700 px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all inline-flex items-center gap-2"
             >
               {t('shopNow')}
               {isRTL ? <FiArrowLeft className="w-5 h-5" /> : <FiArrowRight className="w-5 h-5" />}

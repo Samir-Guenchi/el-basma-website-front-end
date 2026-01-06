@@ -6,11 +6,11 @@ import { FiShoppingBag, FiPlay, FiEye, FiChevronLeft, FiChevronRight } from 'rea
 import { getImageUrl, parseImages } from '../api';
 
 // Optimize Cloudinary images for faster loading
-const getOptimizedImageUrl = (url, width = 400) => {
+const getOptimizedImageUrl = (url, width = 300) => {
   if (!url) return '';
   // If it's a Cloudinary URL, add transformation
   if (url.includes('cloudinary.com')) {
-    return url.replace('/upload/', `/upload/w_${width},q_auto,f_auto/`);
+    return url.replace('/upload/', `/upload/w_${width},q_auto,f_auto,dpr_auto/`);
   }
   return url;
 };
@@ -54,7 +54,7 @@ export default function ProductCard({ product, index = 0 }) {
   const hasVideo = videos.length > 0;
   const hasMultipleImages = images.length > 1;
   const rawImageUrl = getImageUrl(images[currentImageIndex] || images[0]);
-  const imageUrl = getOptimizedImageUrl(rawImageUrl, 400);
+  const imageUrl = getOptimizedImageUrl(rawImageUrl, 300);
 
   // Format price
   const formatPrice = (price) => {
@@ -168,8 +168,9 @@ export default function ProductCard({ product, index = 0 }) {
         <Link
           to={`/products/${product.id}`}
           className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center"
+          aria-label={`${t('viewDetails')} - ${product.name}`}
         >
-          <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-gray-800 px-4 py-2 rounded-full font-medium flex items-center gap-2 shadow-lg">
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-gray-800 px-4 py-2 rounded-full font-medium flex items-center gap-2 shadow-lg" aria-hidden="true">
             <FiEye className="w-4 h-4" />
             {t('viewDetails')}
           </span>
@@ -188,7 +189,7 @@ export default function ProductCard({ product, index = 0 }) {
       {/* Product Info */}
       <div className="p-4">
         {/* Category */}
-        <span className="text-xs text-gold-600 font-medium uppercase tracking-wide">
+        <span className="text-xs text-gold-700 font-medium uppercase tracking-wide">
           {product.category}
         </span>
 
@@ -230,6 +231,7 @@ export default function ProductCard({ product, index = 0 }) {
         <Link
           to={`/products/${product.id}`}
           className="mt-3 w-full btn-gold text-center flex items-center justify-center gap-2 py-2 text-sm"
+          aria-label={`${t('buyHere')} - ${product.name}`}
         >
           <FiShoppingBag className="w-4 h-4" />
           {t('buyHere')}
@@ -237,7 +239,7 @@ export default function ProductCard({ product, index = 0 }) {
 
         {/* Stock indicator */}
         {inStock && (
-          <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+          <p className="text-xs text-green-700 mt-2 flex items-center gap-1">
             <span className="w-2 h-2 bg-green-500 rounded-full"></span>
             {t('inStock')} ({product.quantity} {t('pieces')})
           </p>

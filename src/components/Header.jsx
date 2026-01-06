@@ -37,14 +37,20 @@ export default function Header() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <img 
-              src="/logo.jpg" 
-              alt={t('brand')}
-              className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover shadow-lg group-hover:scale-105 transition-transform"
-            />
+            <picture>
+              <source srcSet="/logo.webp" type="image/webp" />
+              <img 
+                src="/logo-optimized.jpg" 
+                alt={t('brand')}
+                width="48"
+                height="48"
+                fetchpriority="high"
+                className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover shadow-lg group-hover:scale-105 transition-transform"
+              />
+            </picture>
             <div className="hidden sm:block">
               <h1 className="text-lg md:text-xl font-bold text-gray-800 font-display">{t('brand')}</h1>
-              <p className="text-xs text-gray-500 flex items-center gap-1">
+              <p className="text-xs text-gray-600 flex items-center gap-1">
                 <FiMapPin className="w-3 h-3" />
                 {t('location')}
               </p>
@@ -103,6 +109,8 @@ export default function Header() {
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden p-2 rounded-lg hover:bg-cream-100 transition-colors"
+              aria-label="Toggle Menu"
+              aria-expanded={isMenuOpen}
             >
               {isMenuOpen ? (
                 <FiX className="w-6 h-6 text-gray-700" />

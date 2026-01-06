@@ -318,7 +318,7 @@ export default function ProductDetailPage() {
           {/* Product Info */}
           <div className="space-y-6">
             {/* Category */}
-            <span className="text-sm text-gold-600 font-medium uppercase tracking-wide">
+            <span className="text-sm text-gold-700 font-medium uppercase tracking-wide">
               {product.category}
             </span>
 
@@ -343,7 +343,7 @@ export default function ProductDetailPage() {
                   {product.price?.toLocaleString()} <span className="text-lg">DA</span>
                 </span>
               </div>
-              <p className="text-sm text-green-600 font-medium flex items-center gap-2">
+              <p className="text-sm text-green-800 font-medium flex items-center gap-2">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                 {t('priceIncludes')}
               </p>
@@ -356,7 +356,7 @@ export default function ProductDetailPage() {
 
             {/* Stock Status */}
             {inStock ? (
-              <p className="text-green-600 font-medium flex items-center gap-2">
+              <p className="text-green-800 font-medium flex items-center gap-2">
                 <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
                 {t('inStock')} ({product.quantity} {t('pieces')})
               </p>
@@ -399,7 +399,7 @@ export default function ProductDetailPage() {
                   })}
                 </div>
                 {selectedColor && currentColorStock !== null && !selectedSize && (
-                  <p className="mt-2 text-sm text-green-600 font-medium">
+                  <p className="mt-2 text-sm text-green-800 font-medium">
                     ✓ {t('remaining')}: {currentColorStock} {selectedColor}
                   </p>
                 )}
@@ -434,7 +434,7 @@ export default function ProductDetailPage() {
                       >
                         <span>{size}</span>
                         {variantStock !== null && variantStock > 0 && (
-                          <span className="text-xs text-green-600 font-normal">{variantStock}</span>
+                          <span className="text-xs text-green-800 font-normal">{variantStock}</span>
                         )}
                       </button>
                     );
@@ -530,7 +530,7 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-2 gap-4 pt-6 border-t border-cream-200">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <FiTruck className="w-6 h-6 text-green-600" />
+                  <FiTruck className="w-6 h-6 text-green-800" />
                 </div>
                 <div>
                   <p className="font-medium text-sm text-gray-800">{t('freeDelivery')}</p>
