@@ -22,8 +22,16 @@ export default function ProductCard({ product, index = 0 }) {
   const [isVisible, setIsVisible] = useState(false);
   const cardRef = useRef(null);
 
-  // Intersection Observer for lazy loading
+  // First product should load immediately (LCP optimization)
+  const isFirstProduct = index === 0;
+
+  // Intersection Observer for lazy loading (skip for first product)
   useEffect(() => {
+    if (isFirstProduct) {
+      setIsVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -39,7 +47,7 @@ export default function ProductCard({ product, index = 0 }) {
     }
     
     return () => observer.disconnect();
-  }, []);
+  }, [isFirstProduct]);
 
   // Parse product data
   const images = parseImages(product.images);
@@ -101,7 +109,7 @@ export default function ProductCard({ product, index = 0 }) {
 
         {/* Video Indicator Badge (shows video is available in detail page) */}
         {hasVideo && (
-          <div className="absolute top-3 start-3 z-10 bg-primary-600/90 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 shadow-lg">
+          <div className="absolute top-3 start-3 z-10 bg-primary-700 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 shadow-lg">
             <FiPlay className="w-3 h-3" />
             <span>Vidéo</span>
           </div>
@@ -158,7 +166,8 @@ export default function ProductCard({ product, index = 0 }) {
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
               onLoad={() => setImageLoaded(true)}
-              loading="lazy"
+              loading={isFirstProduct ? "eager" : "lazy"}
+              fetchpriority={isFirstProduct ? "high" : "auto"}
               decoding="async"
             />
           )}

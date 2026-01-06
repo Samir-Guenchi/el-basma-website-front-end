@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiArrowLeft, FiArrowRight, FiShoppingBag, FiTruck, FiShield, FiPlay, FiX, FiChevronLeft, FiChevronRight, FiShare2 } from 'react-icons/fi';
 import { getProductById, getImageUrl, parseImages } from '../api';
-import OrderModal from '../components/OrderModal';
+
+// Lazy load OrderModal (only loads when user clicks "Order Now")
+const OrderModal = lazy(() => import('../components/OrderModal'));
 
 // Optimize Cloudinary images for faster loading
 const getOptimizedImageUrl = (url, width = 700) => {
@@ -569,11 +571,13 @@ export default function ProductDetailPage() {
       </div>
 
       {/* Order Modal */}
-      <OrderModal
-        isOpen={showOrderModal}
-        onClose={() => setShowOrderModal(false)}
-        product={{ ...product, selectedColor, selectedSize, quantity }}
-      />
+      <Suspense fallback={null}>
+        <OrderModal
+          isOpen={showOrderModal}
+          onClose={() => setShowOrderModal(false)}
+          product={{ ...product, selectedColor, selectedSize, quantity }}
+        />
+      </Suspense>
     </>
   );
 }

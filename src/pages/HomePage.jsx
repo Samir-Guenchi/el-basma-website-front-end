@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { LazyMotion, domAnimation, m } from 'framer-motion';
 import { FiArrowLeft, FiArrowRight, FiTruck, FiShield, FiRefreshCw, FiStar } from 'react-icons/fi';
 import ProductCard from '../components/ProductCard';
 import CategoryFilter from '../components/CategoryFilter';
@@ -51,50 +51,51 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white overflow-hidden">
-        {/* Decorative Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }} />
-        </div>
+    <LazyMotion features={domAnimation} strict>
+      <div className="min-h-screen">
+        {/* Hero Section */}
+        <section className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white overflow-hidden">
+          {/* Decorative Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }} />
+          </div>
 
-        <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            {/* Discount Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-block bg-gold-400 text-gray-900 px-6 py-2 rounded-full text-sm font-bold mb-6 shadow-lg"
-            >
-              🎉 {t('heroDiscount')} 🎉
-            </motion.div>
+          <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
+            <div className="max-w-3xl mx-auto text-center">
+              {/* Discount Badge */}
+              <m.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="inline-block bg-gold-400 text-gray-900 px-6 py-2 rounded-full text-sm font-bold mb-6 shadow-lg"
+              >
+                🎉 {t('heroDiscount')} 🎉
+              </m.div>
 
-            {/* Title */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
+              {/* Title */}
+              <m.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
               className="text-4xl md:text-5xl lg:text-6xl font-bold font-display mb-6 leading-tight"
             >
               {t('heroTitle')}
-            </motion.h1>
+            </m.h1>
 
             {/* Subtitle */}
-            <motion.p
+            <m.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-lg md:text-xl text-primary-100 mb-8 max-w-2xl mx-auto"
             >
               {t('heroSubtitle')}
-            </motion.p>
+            </m.p>
 
             {/* CTA Buttons */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
@@ -113,7 +114,7 @@ export default function HomePage() {
               >
                 {t('viewCollection')}
               </Link>
-            </motion.div>
+            </m.div>
           </div>
         </div>
 
@@ -130,7 +131,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {features.map((feature, index) => (
-              <motion.div
+              <m.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -144,7 +145,7 @@ export default function HomePage() {
                 <span className="text-sm font-medium text-gray-700">
                   {isRTL ? feature.titleAr : feature.titleFr}
                 </span>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>
@@ -154,7 +155,7 @@ export default function HomePage() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           {/* Section Header */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -166,10 +167,10 @@ export default function HomePage() {
             <p className="text-gray-600 max-w-2xl mx-auto">
               {t('heroSubtitle')}
             </p>
-          </motion.div>
+          </m.div>
 
           {/* Category Filter */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -179,7 +180,7 @@ export default function HomePage() {
               activeCategory={activeCategory}
               onCategoryChange={setActiveCategory}
             />
-          </motion.div>
+          </m.div>
 
           {/* Products Grid */}
           {loading ? (
@@ -219,7 +220,7 @@ export default function HomePage() {
 
           {/* View All Button */}
           {filteredProducts.length > 12 && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -232,7 +233,7 @@ export default function HomePage() {
                 {t('viewCollection')}
                 {isRTL ? <FiArrowLeft className="w-5 h-5" /> : <FiArrowRight className="w-5 h-5" />}
               </Link>
-            </motion.div>
+            </m.div>
           )}
         </div>
       </section>
@@ -240,7 +241,7 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-r from-gold-400 to-gold-500">
         <div className="container mx-auto px-4 text-center">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -258,9 +259,11 @@ export default function HomePage() {
               {t('shopNow')}
               {isRTL ? <FiArrowLeft className="w-5 h-5" /> : <FiArrowRight className="w-5 h-5" />}
             </Link>
-          </motion.div>
+          </m.div>
         </div>
       </section>
     </div>
+    </LazyMotion>
   );
 }
+

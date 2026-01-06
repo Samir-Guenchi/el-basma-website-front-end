@@ -99,10 +99,13 @@ export default function ProductsPage() {
             {/* Filters */}
             <div className="flex items-center gap-4">
               {/* Sort */}
+              <label htmlFor="sort-select" className="sr-only">Sort products</label>
               <select
+                id="sort-select"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="px-4 py-2 rounded-lg border-2 border-cream-300 focus:border-gold-400 outline-none bg-white"
+                aria-label="Sort products"
               >
                 <option value="newest">Newest</option>
                 <option value="price-low">Price: Low to High</option>
@@ -117,6 +120,8 @@ export default function ProductsPage() {
                   className={`p-2 rounded-lg transition-colors ${
                     viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-cream-200'
                   }`}
+                  aria-label="Grid view"
+                  aria-pressed={viewMode === 'grid'}
                 >
                   <FiGrid className="w-5 h-5" />
                 </button>
@@ -125,6 +130,8 @@ export default function ProductsPage() {
                   className={`p-2 rounded-lg transition-colors ${
                     viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-cream-200'
                   }`}
+                  aria-label="List view"
+                  aria-pressed={viewMode === 'list'}
                 >
                   <FiList className="w-5 h-5" />
                 </button>

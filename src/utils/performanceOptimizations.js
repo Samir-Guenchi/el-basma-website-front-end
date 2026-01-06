@@ -3,6 +3,8 @@
  * Prevents forced reflows by batching DOM reads/writes
  */
 
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+
 /**
  * Batch DOM measurements to prevent forced reflows
  * Use this when you need to measure multiple elements
@@ -45,13 +47,56 @@ export const getDimensions = async (element) => {
 };
 
 /**
+ * Hook to measure element dimensions without causing reflows
+ * Batches all measurements in a single frame
+ */
+export const useMeasure = () => {
+  const ref = useRef(null);
+  const [bounds, setBounds] = useState({ width: 0, height: 0, top: 0, left: 0 });
+
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+
+    const measure = () => {
+      requestAnimationFrame(() => {
+        if (ref.current) {
+          const rect = ref.current.getBoundingClientRect();
+          setBounds({
+            width: rect.width,
+            height: rect.height,
+            top: rect.top,
+            left: rect.left,
+          });
+        }
+      });
+    };
+
+    measure();
+
+    // Debounced resize observer
+    const resizeObserver = new ResizeObserver(() => {
+      measure();
+    });
+
+    resizeObserver.observe(ref.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
+  return [ref, bounds];
+};
+
+/**
  * Intersection Observer hook for lazy loading
  * More performant than scroll listeners
  */
-export const useIntersectionObserver = (ref, options = {}) => {
-  const [isIntersecting, setIsIntersecting] = React.useState(false);
+export const useIntersectionObserver = (options = {}) => {
+  const ref = useRef(null);
+  const [isIntersecting, setIsIntersecting] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const element = ref.current;
     if (!element) return;
 
@@ -71,16 +116,16 @@ export const useIntersectionObserver = (ref, options = {}) => {
     return () => {
       observer.disconnect();
     };
-  }, [ref, options]);
+  }, [options]);
 
-  return isIntersecting;
+  return [ref, isIntersecting];
 };
 
 /**
  * Debounced resize handler to prevent excessive reflows
  */
 export const useDebounceResize = (callback, delay = 150) => {
-  React.useEffect(() => {
+  useEffect(() => {
     let timeoutId;
     
     const handleResize = () => {
@@ -90,7 +135,7 @@ export const useDebounceResize = (callback, delay = 150) => {
       }, delay);
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
     
     return () => {
       clearTimeout(timeoutId);
@@ -103,7 +148,7 @@ export const useDebounceResize = (callback, delay = 150) => {
  * Optimized scroll handler using passive listeners
  */
 export const useOptimizedScroll = (callback, options = {}) => {
-  React.useEffect(() => {
+  useEffect(() => {
     let ticking = false;
 
     const handleScroll = () => {
@@ -128,6 +173,7 @@ export default {
   batchMeasure,
   batchWrite,
   getDimensions,
+  useMeasure,
   useIntersectionObserver,
   useDebounceResize,
   useOptimizedScroll,

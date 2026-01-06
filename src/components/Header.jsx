@@ -87,6 +87,8 @@ export default function Header() {
               <button
                 onClick={() => setIsLangOpen(!isLangOpen)}
                 className="flex items-center gap-2 px-3 py-2 rounded-full bg-cream-100 hover:bg-cream-200 transition-colors"
+                aria-label="Change Language"
+                aria-expanded={isLangOpen}
               >
                 <FiGlobe className="w-5 h-5 text-gray-600" />
               </button>
@@ -109,8 +111,9 @@ export default function Header() {
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden p-2 rounded-lg hover:bg-cream-100 transition-colors"
-              aria-label="Toggle Menu"
+              aria-label="Toggle Navigation Menu"
               aria-expanded={isMenuOpen}
+              aria-controls="mobile-menu"
             >
               {isMenuOpen ? (
                 <FiX className="w-6 h-6 text-gray-700" />
@@ -130,6 +133,9 @@ export default function Header() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden bg-white border-t border-cream-200"
+            id="mobile-menu"
+            role="navigation"
+            aria-label="Mobile navigation"
           >
             <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
               {navLinks.map((link) => (

@@ -7,6 +7,35 @@
     <meta name="description" content="جلابة البصمة مغنية - أفخم الملابس التقليدية الجزائرية والمغربية. جلابات، قفاطين، عبايات بأحسن الأسعار" />
     <meta name="keywords" content="جلابة، قفطان، عباية، ملابس تقليدية، مغنية، الجزائر" />
     
+    <!-- Critical CSS - Inline for faster FCP -->
+    <style>
+      /* Critical styles for above-the-fold content */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: 'Tajawal', 'Cairo', sans-serif; background-color: #fefdfb; color: #1a1a1a; line-height: 1.6; }
+      
+      /* Header styles */
+      header { position: sticky; top: 0; z-index: 50; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
+      .container { max-width: 1280px; margin: 0 auto; padding: 0 1rem; }
+      
+      /* Hero section */
+      h1 { font-size: 1.875rem; font-weight: 700; color: #1f2937; font-family: 'Amiri', serif; }
+      @media (min-width: 768px) { h1 { font-size: 2.25rem; } }
+      
+      /* Navigation */
+      nav { display: flex; align-items: center; justify-content: space-between; height: 4rem; }
+      @media (min-width: 768px) { nav { height: 5rem; } }
+      
+      /* Loading skeleton */
+      .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+      @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+      
+      /* Prevent layout shift */
+      img { display: block; max-width: 100%; height: auto; }
+      
+      /* Hide non-critical content during load */
+      footer { display: none; }
+    </style>
+    
     <!-- DNS Prefetch & Preconnect for critical resources -->
     <link rel="dns-prefetch" href="https://web-production-1c70.up.railway.app">
     <link rel="preconnect" href="https://web-production-1c70.up.railway.app" crossorigin>
