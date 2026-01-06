@@ -32,12 +32,13 @@ export default function HomePage() {
     }
   };
 
-  // Filter products by category
+  // Filter products by category (already filtered by publishedOnWebsite from API)
   const filteredProducts = activeCategory === 'all' 
-    ? products.filter(p => p.inStock && p.quantity > 0)
+    ? products.filter(p => p.inStock && p.quantity > 0 && p.publishedOnWebsite)
     : products.filter(p => 
         p.inStock && 
         p.quantity > 0 && 
+        p.publishedOnWebsite &&
         p.category?.toLowerCase().includes(activeCategory.toLowerCase())
       );
 

@@ -42,7 +42,7 @@ export default function ProductsPage() {
 
   // Filter and sort products
   const filteredProducts = products
-    .filter(p => p.inStock && p.quantity > 0)
+    .filter(p => p.inStock && p.quantity > 0 && p.publishedOnWebsite)
     .filter(p => {
       if (activeCategory === 'all') return true;
       return p.category?.toLowerCase().includes(activeCategory.toLowerCase());
