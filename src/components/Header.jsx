@@ -189,36 +189,30 @@ export default function Header() {
             
             {/* Menu Panel */}
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
               className="md:hidden absolute left-0 right-0 top-full bg-white border-t border-cream-200 shadow-lg z-50"
               id="mobile-menu"
               role="navigation"
               aria-label="Mobile navigation"
             >
-              <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
+              <nav className="container mx-auto px-4 py-3">
                 {navLinks.map((link, index) => (
-                  <motion.div
+                  <Link
                     key={link.path}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                    to={link.path}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${
+                      isActive(link.path)
+                        ? 'bg-gold-50 text-gold-700'
+                        : 'text-gray-600 hover:bg-cream-50 active:bg-cream-100'
+                    }`}
                   >
-                    <Link
-                      to={link.path}
-                      onClick={() => setIsMenuOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-4 rounded-xl font-medium transition-all ${
-                        isActive(link.path)
-                          ? 'bg-gradient-to-r from-gold-100 to-gold-50 text-gold-700 shadow-sm'
-                          : 'text-gray-600 hover:bg-cream-100 active:bg-cream-200'
-                      }`}
-                    >
-                      <link.icon className="w-5 h-5" />
-                      <span className="text-base">{link.label}</span>
-                    </Link>
-                  </motion.div>
+                    <link.icon className="w-5 h-5" />
+                    <span>{link.label}</span>
+                  </Link>
                 ))}
               </nav>
             </motion.div>
