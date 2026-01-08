@@ -94,6 +94,22 @@ const resources = {
       remaining: 'باقي',
       max: 'الحد الأقصى',
       outOfStockVariant: 'غير متوفر',
+      
+      // Validation errors
+      nameRequired: 'الاسم الكامل مطلوب',
+      nameMinLength: 'الاسم يجب أن يكون 3 أحرف على الأقل',
+      nameTooLong: 'الاسم طويل جداً',
+      nameInvalidChars: 'الاسم يحتوي على أحرف غير صالحة',
+      phoneInvalid: 'رقم الهاتف غير صالح (مثال: 0550000000)',
+      cityRequired: 'الولاية مطلوبة',
+      cityMinLength: 'اسم الولاية قصير جداً',
+      cityTooLong: 'اسم الولاية طويل جداً',
+      addressRequired: 'العنوان مطلوب',
+      addressMinLength: 'العنوان يجب أن يكون 5 أحرف على الأقل',
+      addressTooLong: 'العنوان طويل جداً',
+      notesTooLong: 'الملاحظات طويلة جداً',
+      selectColorSize: 'يرجى اختيار اللون والمقاس لجميع المنتجات',
+      rateLimitError: 'يرجى الانتظار {{seconds}} ثانية قبل المحاولة مرة أخرى',
     }
   },
   dz: {
@@ -186,6 +202,22 @@ const resources = {
       remaining: 'باقي',
       max: 'الماكس',
       outOfStockVariant: 'سالات',
+      
+      // Validation errors
+      nameRequired: 'لازم تدخلي اسمك الكامل',
+      nameMinLength: 'الاسم لازم يكون 3 حروف على الأقل',
+      nameTooLong: 'الاسم طويل بزاف',
+      nameInvalidChars: 'الاسم فيه حروف ماشي مليحة',
+      phoneInvalid: 'رقم التيليفون ماشي صحيح (مثال: 0550000000)',
+      cityRequired: 'لازم تدخلي الولاية',
+      cityMinLength: 'اسم الولاية قصير بزاف',
+      cityTooLong: 'اسم الولاية طويل بزاف',
+      addressRequired: 'لازم تدخلي العنوان',
+      addressMinLength: 'العنوان لازم يكون 5 حروف على الأقل',
+      addressTooLong: 'العنوان طويل بزاف',
+      notesTooLong: 'الملاحظات طويلة بزاف',
+      selectColorSize: 'اختاري اللون والقياس لكل الحوايج',
+      rateLimitError: 'استناي {{seconds}} ثانية قبل ما تعاودي',
     }
   },
   fr: {
@@ -278,6 +310,22 @@ const resources = {
       remaining: 'Restant',
       max: 'Max',
       outOfStockVariant: 'Épuisé',
+      
+      // Validation errors
+      nameRequired: 'Le nom complet est requis',
+      nameMinLength: 'Le nom doit contenir au moins 3 caractères',
+      nameTooLong: 'Le nom est trop long',
+      nameInvalidChars: 'Le nom contient des caractères invalides',
+      phoneInvalid: 'Numéro de téléphone invalide (ex: 0550000000)',
+      cityRequired: 'La wilaya est requise',
+      cityMinLength: 'Le nom de la wilaya est trop court',
+      cityTooLong: 'Le nom de la wilaya est trop long',
+      addressRequired: 'L\'adresse est requise',
+      addressMinLength: 'L\'adresse doit contenir au moins 5 caractères',
+      addressTooLong: 'L\'adresse est trop longue',
+      notesTooLong: 'Les notes sont trop longues',
+      selectColorSize: 'Veuillez sélectionner la couleur et la taille pour tous les articles',
+      rateLimitError: 'Veuillez attendre {{seconds}} secondes avant de réessayer',
     }
   },
   en: {
@@ -370,6 +418,22 @@ const resources = {
       remaining: 'Remaining',
       max: 'Max',
       outOfStockVariant: 'Out of stock',
+      
+      // Validation errors
+      nameRequired: 'Full name is required',
+      nameMinLength: 'Name must be at least 3 characters',
+      nameTooLong: 'Name is too long',
+      nameInvalidChars: 'Name contains invalid characters',
+      phoneInvalid: 'Invalid phone number (e.g., 0550000000)',
+      cityRequired: 'Wilaya is required',
+      cityMinLength: 'Wilaya name is too short',
+      cityTooLong: 'Wilaya name is too long',
+      addressRequired: 'Address is required',
+      addressMinLength: 'Address must be at least 5 characters',
+      addressTooLong: 'Address is too long',
+      notesTooLong: 'Notes are too long',
+      selectColorSize: 'Please select color and size for all items',
+      rateLimitError: 'Please wait {{seconds}} seconds before trying again',
     }
   }
 };

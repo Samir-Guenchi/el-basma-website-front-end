@@ -1,17 +1,38 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiCheck, FiPhone, FiUser, FiMapPin, FiMessageSquare, FiTruck, FiSearch, FiPlus, FiMinus } from 'react-icons/fi';
+import { FiX, FiCheck, FiPhone, FiUser, FiMapPin, FiMessageSquare, FiTruck, FiPlus, FiMinus, FiAlertCircle } from 'react-icons/fi';
 import { createOrder, searchDelivery, getImageUrl, parseImages } from '../api';
+import { validateOrderForm, sanitizeOrderData } from '../shared/utils/validation';
+import { orderRateLimiter, validateHoneypot, getHoneypotFieldName, detectBot, getClientFingerprint } from '../shared/utils/security';
 import toast from 'react-hot-toast';
 
+// Animated error message component
+const FieldError = ({ error, t }) => (
+  <AnimatePresence>
+    {error && (
+      <motion.div
+        initial={{ opacity: 0, y: -5, height: 0 }}
+        animate={{ opacity: 1, y: 0, height: 'auto' }}
+        exit={{ opacity: 0, y: -5, height: 0 }}
+        className="flex items-center gap-1.5 mt-1.5 text-sm text-red-600"
+      >
+        <FiAlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+        <span>{t(error) || error}</span>
+      </motion.div>
+    )}
+  </AnimatePresence>
+);
+
 export default function OrderModal({ isOpen, onClose, product }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [deliveryInfo, setDeliveryInfo] = useState(null);
   const [deliveryLoading, setDeliveryLoading] = useState(false);
   const [deliveryError, setDeliveryError] = useState('');
+  const formRef = useRef(null);
+  const honeypotFieldName = getHoneypotFieldName();
   
   const [formData, setFormData] = useState({
     customerName: '',
@@ -21,7 +42,9 @@ export default function OrderModal({ isOpen, onClose, product }) {
     notes: '',
   });
   
+  const [honeypot, setHoneypot] = useState('');
   const [formErrors, setFormErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   // Items array for multiple products with different colors/sizes
   const [items, setItems] = useState([{ color: '', size: '' }]);
@@ -40,10 +63,8 @@ export default function OrderModal({ isOpen, onClose, product }) {
     if (isOpen && product) {
       const qty = product.quantity || 1;
       if (qty === 1 && product.selectedColor && product.selectedSize) {
-        // Single item with pre-selected options
         setItems([{ color: product.selectedColor, size: product.selectedSize }]);
       } else if (qty > 1) {
-        // Multiple items - initialize array
         setItems(Array(qty).fill(null).map(() => ({ 
           color: product.selectedColor || '', 
           size: product.selectedSize || '' 
@@ -51,6 +72,10 @@ export default function OrderModal({ isOpen, onClose, product }) {
       } else {
         setItems([{ color: product.selectedColor || '', size: product.selectedSize || '' }]);
       }
+      // Reset form state
+      setFormErrors({});
+      setTouched({});
+      setHoneypot('');
     }
   }, [isOpen, product]);
 
@@ -93,7 +118,7 @@ export default function OrderModal({ isOpen, onClose, product }) {
         setDeliveryInfo(null);
         setDeliveryError(t('wilayaNotFound'));
       }
-    } catch (error) {
+    } catch {
       setDeliveryInfo(null);
       setDeliveryError(t('wilayaNotFound'));
     } finally {
@@ -101,23 +126,39 @@ export default function OrderModal({ isOpen, onClose, product }) {
     }
   };
 
+  // Validate single field on blur
+  const validateField = (name, value) => {
+    const tempData = { ...formData, [name]: value };
+    const { errors } = validateOrderForm(tempData);
+    
+    setFormErrors(prev => ({
+      ...prev,
+      [name]: errors[name] || '',
+    }));
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error for this field when user starts typing
-    if (formErrors[name]) {
+    // Clear error when user starts typing (if field was touched)
+    if (touched[name] && formErrors[name]) {
       setFormErrors(prev => ({ ...prev, [name]: '' }));
     }
     
     // Auto-check delivery when city field changes
     if (name === 'customerCity') {
-      // Debounce: wait 500ms after user stops typing
       clearTimeout(window.deliveryTimeout);
       window.deliveryTimeout = setTimeout(() => {
         checkDeliveryPrice(value);
       }, 500);
     }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    validateField(name, value);
   };
 
   // Format items details for order notes
@@ -133,23 +174,47 @@ export default function OrderModal({ isOpen, onClose, product }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Enhanced validation with specific error messages
-    const errors = [];
-    
-    if (!formData.customerName || formData.customerName.trim().length < 3) {
-      errors.push(t('nameRequired') || 'الاسم الكامل مطلوب (3 أحرف على الأقل)');
+    // Security: Check honeypot (bot detection)
+    if (!validateHoneypot(honeypot)) {
+      console.warn('Bot detected via honeypot');
+      toast.error(t('orderError'));
+      return;
     }
     
-    if (!formData.customerPhone || formData.customerPhone.trim().length < 10) {
-      errors.push(t('phoneRequired') || 'رقم الهاتف مطلوب (10 أرقام على الأقل)');
+    // Security: Check for bot indicators
+    if (detectBot()) {
+      console.warn('Bot detected via browser indicators');
+      toast.error(t('orderError'));
+      return;
     }
     
-    if (!formData.customerCity || formData.customerCity.trim().length < 2) {
-      errors.push(t('cityRequired') || 'الولاية مطلوبة');
+    // Security: Rate limiting
+    const clientId = getClientFingerprint();
+    if (!orderRateLimiter.isAllowed(clientId)) {
+      const remainingTime = orderRateLimiter.getRemainingTime(clientId);
+      toast.error(t('rateLimitError', { seconds: remainingTime }) || `يرجى الانتظار ${remainingTime} ثانية قبل المحاولة مرة أخرى`);
+      return;
     }
     
-    if (!formData.customerAddress || formData.customerAddress.trim().length < 5) {
-      errors.push(t('addressRequired') || 'العنوان مطلوب (5 أحرف على الأقل)');
+    // Validate form using custom validation
+    const { isValid, errors } = validateOrderForm(formData);
+    
+    if (!isValid) {
+      setFormErrors(errors);
+      setTouched({
+        customerName: true,
+        customerPhone: true,
+        customerCity: true,
+        customerAddress: true,
+        notes: true,
+      });
+      
+      // Show first error as toast
+      const firstError = Object.values(errors)[0];
+      if (firstError) {
+        toast.error(t(firstError) || firstError);
+      }
+      return;
     }
     
     // Validate items (color/size if available)
@@ -161,30 +226,28 @@ export default function OrderModal({ isOpen, onClose, product }) {
       });
       
       if (hasEmptyItems) {
-        errors.push(t('selectColorSize') || 'يرجى اختيار اللون والمقاس لجميع المنتجات');
+        toast.error(t('selectColorSize') || 'يرجى اختيار اللون والمقاس لجميع المنتجات');
+        return;
       }
-    }
-    
-    // Show all errors
-    if (errors.length > 0) {
-      errors.forEach(error => toast.error(error, { duration: 4000 }));
-      return;
     }
 
     setIsSubmitting(true);
 
     try {
+      // Sanitize data before submission
+      const sanitizedData = sanitizeOrderData(formData);
+      
       // Build order details with all items
       const itemsDetails = formatItemsDetails();
       const orderNotes = items.length > 1 
-        ? `${t('itemsDetails')}:\n${itemsDetails}\n\n${formData.notes || ''}`
-        : formData.notes;
+        ? `${t('itemsDetails')}:\n${itemsDetails}\n\n${sanitizedData.notes || ''}`
+        : sanitizedData.notes;
 
       await createOrder({
-        customerName: formData.customerName.trim(),
-        customerPhone: formData.customerPhone.trim(),
-        city: formData.customerCity.trim(),
-        address: formData.customerAddress.trim(),
+        customerName: sanitizedData.customerName,
+        customerPhone: sanitizedData.customerPhone,
+        city: sanitizedData.customerCity,
+        address: sanitizedData.customerAddress,
         productId: product.id,
         productName: product.name,
         quantity: items.length,
@@ -209,6 +272,8 @@ export default function OrderModal({ isOpen, onClose, product }) {
           notes: '',
         });
         setItems([{ color: '', size: '' }]);
+        setFormErrors({});
+        setTouched({});
         onClose();
       }, 3000);
       
@@ -262,6 +327,7 @@ export default function OrderModal({ isOpen, onClose, product }) {
                 <button
                   onClick={onClose}
                   className="w-10 h-10 rounded-full hover:bg-cream-100 flex items-center justify-center transition-colors"
+                  aria-label={t('close')}
                 >
                   <FiX className="w-5 h-5 text-gray-600" />
                 </button>
@@ -282,7 +348,6 @@ export default function OrderModal({ isOpen, onClose, product }) {
                     </p>
                     <p className="text-xs text-green-800 mt-1">{t('priceIncludes')}</p>
                     
-                    {/* Show selected options */}
                     {(product.selectedColor || product.selectedSize || product.quantity > 1) && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {product.quantity > 1 && (
@@ -307,7 +372,21 @@ export default function OrderModal({ isOpen, onClose, product }) {
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <form ref={formRef} onSubmit={handleSubmit} className="p-6 space-y-4" noValidate>
+                {/* Honeypot field - hidden from users, visible to bots */}
+                <div className="absolute -left-[9999px] opacity-0 h-0 overflow-hidden" aria-hidden="true">
+                  <label htmlFor={honeypotFieldName}>Website URL</label>
+                  <input
+                    type="text"
+                    id={honeypotFieldName}
+                    name={honeypotFieldName}
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
+
                 {/* Name */}
                 <div>
                   <label className="form-label flex items-center gap-2">
@@ -319,13 +398,15 @@ export default function OrderModal({ isOpen, onClose, product }) {
                     name="customerName"
                     value={formData.customerName}
                     onChange={handleChange}
-                    className={`form-input ${formErrors.customerName ? 'border-red-500 focus:border-red-500' : ''}`}
-                    required
-                    minLength={3}
+                    onBlur={handleBlur}
+                    className={`form-input transition-colors ${
+                      touched.customerName && formErrors.customerName 
+                        ? 'border-red-400 focus:border-red-500 focus:ring-red-200' 
+                        : ''
+                    }`}
+                    autoComplete="name"
                   />
-                  {formErrors.customerName && (
-                    <p className="text-sm text-red-500 mt-1">{formErrors.customerName}</p>
-                  )}
+                  <FieldError error={touched.customerName && formErrors.customerName} t={t} />
                 </div>
 
                 {/* Phone */}
@@ -335,19 +416,21 @@ export default function OrderModal({ isOpen, onClose, product }) {
                     {t('phone')} *
                   </label>
                   <input
-                    type="tel"
+                    type="text"
                     name="customerPhone"
                     value={formData.customerPhone}
                     onChange={handleChange}
-                    className={`form-input ${formErrors.customerPhone ? 'border-red-500 focus:border-red-500' : ''}`}
+                    onBlur={handleBlur}
+                    className={`form-input transition-colors ${
+                      touched.customerPhone && formErrors.customerPhone 
+                        ? 'border-red-400 focus:border-red-500 focus:ring-red-200' 
+                        : ''
+                    }`}
                     placeholder="0550 00 00 00"
                     dir="ltr"
-                    required
-                    minLength={10}
+                    autoComplete="tel"
                   />
-                  {formErrors.customerPhone && (
-                    <p className="text-sm text-red-500 mt-1">{formErrors.customerPhone}</p>
-                  )}
+                  <FieldError error={touched.customerPhone && formErrors.customerPhone} t={t} />
                 </div>
 
                 {/* City */}
@@ -362,9 +445,14 @@ export default function OrderModal({ isOpen, onClose, product }) {
                       name="customerCity"
                       value={formData.customerCity}
                       onChange={handleChange}
-                      className={`form-input ${formErrors.customerCity ? 'border-red-500 focus:border-red-500' : ''}`}
+                      onBlur={handleBlur}
+                      className={`form-input transition-colors ${
+                        touched.customerCity && formErrors.customerCity 
+                          ? 'border-red-400 focus:border-red-500 focus:ring-red-200' 
+                          : ''
+                      }`}
                       placeholder={t('enterWilaya')}
-                      required
+                      autoComplete="address-level1"
                     />
                     {deliveryLoading && (
                       <div className="absolute end-3 top-1/2 -translate-y-1/2">
@@ -372,9 +460,7 @@ export default function OrderModal({ isOpen, onClose, product }) {
                       </div>
                     )}
                   </div>
-                  {formErrors.customerCity && (
-                    <p className="text-sm text-red-500 mt-1">{formErrors.customerCity}</p>
-                  )}
+                  <FieldError error={touched.customerCity && formErrors.customerCity} t={t} />
                   
                   {/* Delivery Price Display */}
                   {deliveryInfo && (
@@ -400,14 +486,14 @@ export default function OrderModal({ isOpen, onClose, product }) {
                     </motion.div>
                   )}
                   
-                  {/* Error Message */}
                   {deliveryError && (
                     <motion.p
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="mt-2 text-sm text-orange-600 flex items-center gap-1"
                     >
-                      ⚠️ {deliveryError}
+                      <FiAlertCircle className="w-4 h-4" />
+                      {deliveryError}
                     </motion.p>
                   )}
                 </div>
@@ -420,13 +506,15 @@ export default function OrderModal({ isOpen, onClose, product }) {
                     name="customerAddress"
                     value={formData.customerAddress}
                     onChange={handleChange}
-                    className={`form-input ${formErrors.customerAddress ? 'border-red-500 focus:border-red-500' : ''}`}
-                    required
-                    minLength={5}
+                    onBlur={handleBlur}
+                    className={`form-input transition-colors ${
+                      touched.customerAddress && formErrors.customerAddress 
+                        ? 'border-red-400 focus:border-red-500 focus:ring-red-200' 
+                        : ''
+                    }`}
+                    autoComplete="street-address"
                   />
-                  {formErrors.customerAddress && (
-                    <p className="text-sm text-red-500 mt-1">{formErrors.customerAddress}</p>
-                  )}
+                  <FieldError error={touched.customerAddress && formErrors.customerAddress} t={t} />
                 </div>
 
                 {/* Items List - Color & Size for each item */}
@@ -456,7 +544,6 @@ export default function OrderModal({ isOpen, onClose, product }) {
                             {index + 1}
                           </span>
                           
-                          {/* Color selector */}
                           {colors.length > 0 && (
                             <select
                               value={item.color}
@@ -470,7 +557,6 @@ export default function OrderModal({ isOpen, onClose, product }) {
                             </select>
                           )}
                           
-                          {/* Size selector */}
                           {sizes.length > 0 && (
                             <select
                               value={item.size}
@@ -484,12 +570,12 @@ export default function OrderModal({ isOpen, onClose, product }) {
                             </select>
                           )}
                           
-                          {/* Remove button */}
                           {items.length > 1 && (
                             <button
                               type="button"
                               onClick={() => removeItem(index)}
                               className="w-8 h-8 flex items-center justify-center text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                              aria-label={`Remove item ${index + 1}`}
                             >
                               <FiMinus className="w-4 h-4" />
                             </button>
@@ -498,7 +584,6 @@ export default function OrderModal({ isOpen, onClose, product }) {
                       ))}
                     </div>
                     
-                    {/* Total price */}
                     <div className="flex justify-between items-center bg-gold-50 rounded-lg p-3 border border-gold-200">
                       <span className="text-sm font-medium text-gray-700">{t('totalPrice')}</span>
                       <span className="text-lg font-bold text-primary-600">
@@ -518,9 +603,11 @@ export default function OrderModal({ isOpen, onClose, product }) {
                     name="notes"
                     value={formData.notes}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     className="form-input resize-none"
                     rows={3}
                   />
+                  <FieldError error={touched.notes && formErrors.notes} t={t} />
                 </div>
 
                 {/* Delivery Info */}
