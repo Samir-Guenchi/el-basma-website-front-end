@@ -1,13 +1,34 @@
+/**
+ * API Module - Backward Compatible Exports
+ * 
+ * This file maintains backward compatibility with existing components
+ * while the codebase is being migrated to the new modular structure.
+ * 
+ * New code should import from:
+ * - '@/features/products' for product-related functions
+ * - '@/features/orders' for order-related functions
+ * - '@/core/api/httpClient' for HTTP client
+ */
+
 import axios from 'axios';
 
-// API Base URL - Railway production server (hardcoded for reliability)
+// Re-export from new modular structure for backward compatibility
+export { 
+  getImageUrl, 
+  parseImages,
+  getOptimizedImageUrl,
+  formatPrice,
+  getColorHex,
+} from './features/products/utils/productHelpers';
+
+// API Base URL - Railway production server
 const API_BASE_URL = 'https://web-production-1c70.up.railway.app';
 
 console.log('API Base URL:', API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 60000, // 60 seconds timeout (increased for slow connections)
+  timeout: 60000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -19,13 +40,11 @@ api.interceptors.response.use(
   async error => {
     const config = error.config;
     
-    // Don't retry if no config or already retried 3 times
     if (!config || config.__retryCount >= 3) {
       console.error('API request failed after retries:', error.message);
       return Promise.reject(error);
     }
     
-    // Only retry on network errors or 5xx server errors
     const shouldRetry = !error.response || (error.response.status >= 500 && error.response.status < 600);
     if (!shouldRetry) {
       return Promise.reject(error);
@@ -34,7 +53,6 @@ api.interceptors.response.use(
     config.__retryCount = config.__retryCount || 0;
     config.__retryCount++;
     
-    // Exponential backoff: 1s, 2s, 4s
     const delay = Math.pow(2, config.__retryCount - 1) * 1000;
     console.log(`Retrying request (${config.__retryCount}/3) after ${delay}ms:`, config.url);
     
@@ -42,44 +60,6 @@ api.interceptors.response.use(
     return api(config);
   }
 );
-
-// Helper function to convert relative image URLs to full URLs
-export const getImageUrl = (imagePath) => {
-  if (!imagePath) return '/placeholder-product.jpg';
-  
-  // Already a full URL
-  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-    return imagePath;
-  }
-  
-  // Relative path - add base URL
-  const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
-  return `${API_BASE_URL}${cleanPath}`;
-};
-
-// Helper function to parse images field (can be JSON array or single path)
-export const parseImages = (imagesField) => {
-  if (!imagesField) return [];
-  
-  // Already an array
-  if (Array.isArray(imagesField)) return imagesField;
-  
-  // It's a string
-  if (typeof imagesField === 'string') {
-    // Try to parse as JSON array
-    if (imagesField.startsWith('[')) {
-      try {
-        return JSON.parse(imagesField);
-      } catch (e) {
-        return [imagesField];
-      }
-    }
-    // Single path string - wrap in array
-    return [imagesField];
-  }
-  
-  return [];
-};
 
 // Products API - Only fetch products published on website
 export const getProducts = async () => {
