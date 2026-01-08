@@ -91,7 +91,7 @@ export default function ProductCard({ product, index = 0 }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.05 }}
-      className="product-card group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-cream-200"
+      className="product-card group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-cream-200 flex flex-col"
     >
       {/* Image/Video Container */}
       <div className="relative aspect-[3/4] overflow-hidden bg-cream-100">
@@ -196,7 +196,7 @@ export default function ProductCard({ product, index = 0 }) {
       </div>
 
       {/* Product Info */}
-      <div className="p-4">
+      <div className="p-4 flex flex-col h-full">
         {/* Category */}
         <span className="text-xs text-gold-700 font-medium uppercase tracking-wide">
           {product.category}
@@ -225,7 +225,7 @@ export default function ProductCard({ product, index = 0 }) {
         )}
 
         {/* Price */}
-        <div>
+        <div className="mb-3">
           <p className="text-xl font-bold text-primary-600">
             {formatPrice(product.price)} <span className="text-sm">DA</span>
           </p>
@@ -236,10 +236,13 @@ export default function ProductCard({ product, index = 0 }) {
           )}
         </div>
 
+        {/* Spacer to push button to bottom */}
+        <div className="flex-grow"></div>
+
         {/* Buy Here Button */}
         <Link
           to={`/products/${product.id}`}
-          className="mt-3 w-full btn-gold text-center flex items-center justify-center gap-2 py-2 text-sm"
+          className="w-full btn-gold text-center flex items-center justify-center gap-2 py-2 text-sm"
           aria-label={`${t('buyHere')} - ${product.name}`}
         >
           <FiShoppingBag className="w-4 h-4" />
