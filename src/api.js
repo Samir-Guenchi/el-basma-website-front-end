@@ -28,24 +28,33 @@ console.log('API Base URL:', API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 60000,
+  timeout: 30000, // Reduced timeout for mobile networks
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
+  // Important for mobile: don't send credentials for CORS
+  withCredentials: false,
 });
 
-// Retry logic for failed requests
+// Retry logic for failed requests (improved for mobile)
 api.interceptors.response.use(
   response => response,
   async error => {
     const config = error.config;
     
+    // Max 3 retries
     if (!config || config.__retryCount >= 3) {
       console.error('API request failed after retries:', error.message);
       return Promise.reject(error);
     }
     
-    const shouldRetry = !error.response || (error.response.status >= 500 && error.response.status < 600);
+    // Retry on network errors (common on mobile) or server errors
+    const isNetworkError = !error.response && error.message === 'Network Error';
+    const isTimeoutError = error.code === 'ECONNABORTED';
+    const isServerError = error.response?.status >= 500 && error.response?.status < 600;
+    
+    const shouldRetry = isNetworkError || isTimeoutError || isServerError;
     if (!shouldRetry) {
       return Promise.reject(error);
     }
@@ -53,6 +62,7 @@ api.interceptors.response.use(
     config.__retryCount = config.__retryCount || 0;
     config.__retryCount++;
     
+    // Exponential backoff: 1s, 2s, 4s
     const delay = Math.pow(2, config.__retryCount - 1) * 1000;
     console.log(`Retrying request (${config.__retryCount}/3) after ${delay}ms:`, config.url);
     

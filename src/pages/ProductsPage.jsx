@@ -14,6 +14,7 @@ export default function ProductsPage() {
   
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState(category || 'djellaba');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // grid or list
@@ -30,14 +31,22 @@ export default function ProductsPage() {
   }, [category]);
 
   const fetchProducts = async () => {
+    setError(null);
     try {
       const data = await getProducts();
       setProducts(data);
     } catch (error) {
       console.error('Error fetching products:', error);
+      setError(error.message || 'Failed to load products');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    fetchProducts();
   };
 
   // Filter and sort products
@@ -190,6 +199,20 @@ export default function ProductsPage() {
                 </div>
               </div>
             ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-16">
+            <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-4xl">📡</span>
+            </div>
+            <p className="text-gray-700 text-lg font-medium mb-2">{t('networkError') || 'Connection Error'}</p>
+            <p className="text-gray-500 mb-6">{t('checkConnection') || 'Please check your internet connection'}</p>
+            <button
+              onClick={handleRetry}
+              className="px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors shadow-md"
+            >
+              {t('retry') || 'Try Again'}
+            </button>
           </div>
         ) : filteredProducts.length > 0 ? (
           <div className={`grid gap-4 md:gap-6 ${

@@ -198,12 +198,16 @@ export default function HomePage() {
             </div>
           ) : error ? (
             <div className="text-center py-12">
-              <p className="text-red-500 text-lg mb-4">{error}</p>
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">📡</span>
+              </div>
+              <p className="text-gray-700 text-lg font-medium mb-2">{t('networkError') || 'Connection Error'}</p>
+              <p className="text-gray-500 mb-6">{t('checkConnection') || 'Please check your internet connection'}</p>
               <button 
                 onClick={fetchProducts}
-                className="btn-outline"
+                className="px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors shadow-md"
               >
-                {t('retry') || 'Retry'}
+                {t('retry') || 'Try Again'}
               </button>
             </div>
           ) : filteredProducts.length > 0 ? (
