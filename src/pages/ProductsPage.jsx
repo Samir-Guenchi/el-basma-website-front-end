@@ -92,33 +92,43 @@ export default function ProductsPage() {
                 placeholder={t('search')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full ps-12 pe-4 py-3 rounded-full border-2 border-cream-300 focus:border-gold-400 outline-none transition-colors"
+                className="w-full ps-12 pe-4 py-3 rounded-xl border-2 border-cream-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-200 outline-none transition-all shadow-sm"
               />
             </div>
 
             {/* Filters */}
             <div className="flex items-center gap-4">
               {/* Sort */}
-              <label htmlFor="sort-select" className="sr-only">Sort products</label>
-              <select
-                id="sort-select"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-2 rounded-lg border-2 border-cream-300 focus:border-gold-400 outline-none bg-white"
-                aria-label="Sort products"
-              >
-                <option value="newest">Newest</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="name">Name</option>
-              </select>
+              <div className="relative">
+                <label htmlFor="sort-select" className="sr-only">Sort products</label>
+                <select
+                  id="sort-select"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="appearance-none px-4 py-3 pe-10 rounded-xl border-2 border-cream-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-200 outline-none bg-white text-gray-700 font-medium cursor-pointer transition-all hover:border-gold-400 shadow-sm"
+                  aria-label="Sort products"
+                >
+                  <option value="newest">Newest</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="name">Name</option>
+                </select>
+                {/* Custom Arrow Icon */}
+                <div className="absolute inset-y-0 end-0 flex items-center pe-3 pointer-events-none">
+                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
 
               {/* View Mode Toggle */}
-              <div className="hidden md:flex items-center gap-1 bg-cream-100 rounded-lg p-1">
+              <div className="hidden md:flex items-center gap-1 bg-cream-100 rounded-xl p-1 shadow-sm">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-lg transition-colors ${
-                    viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-cream-200'
+                  className={`p-2.5 rounded-lg transition-all ${
+                    viewMode === 'grid' 
+                      ? 'bg-white shadow-md text-gold-600' 
+                      : 'hover:bg-cream-200 text-gray-500'
                   }`}
                   aria-label="Grid view"
                   aria-pressed={viewMode === 'grid'}
@@ -127,8 +137,10 @@ export default function ProductsPage() {
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-lg transition-colors ${
-                    viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-cream-200'
+                  className={`p-2.5 rounded-lg transition-all ${
+                    viewMode === 'list' 
+                      ? 'bg-white shadow-md text-gold-600' 
+                      : 'hover:bg-cream-200 text-gray-500'
                   }`}
                   aria-label="List view"
                   aria-pressed={viewMode === 'list'}
