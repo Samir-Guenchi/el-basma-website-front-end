@@ -55,22 +55,22 @@ export default function Footer() {
             <h4 className="font-bold text-lg mb-4 text-gold-400">{t('products')}</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/products/djellaba" className="text-gray-400 hover:text-gold-400 transition-colors">
+                <Link to="/products?category=djellaba" className="text-gray-400 hover:text-gold-400 transition-colors">
                   {t('djellaba')}
                 </Link>
               </li>
               <li>
-                <Link to="/products/caftan" className="text-gray-400 hover:text-gold-400 transition-colors">
+                <Link to="/products?category=caftan" className="text-gray-400 hover:text-gold-400 transition-colors">
                   {t('caftan')}
                 </Link>
               </li>
               <li>
-                <Link to="/products/abaya" className="text-gray-400 hover:text-gold-400 transition-colors">
+                <Link to="/products?category=abaya" className="text-gray-400 hover:text-gold-400 transition-colors">
                   {t('abaya')}
                 </Link>
               </li>
               <li>
-                <Link to="/products/takchita" className="text-gray-400 hover:text-gold-400 transition-colors">
+                <Link to="/products?category=takchita" className="text-gray-400 hover:text-gold-400 transition-colors">
                   {t('takchita')}
                 </Link>
               </li>

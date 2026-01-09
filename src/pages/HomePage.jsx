@@ -109,7 +109,7 @@ export default function HomePage() {
                 {isRTL ? <FiArrowLeft className="w-5 h-5" /> : <FiArrowRight className="w-5 h-5" />}
               </Link>
               <Link
-                to="/products/djellaba"
+                to="/products?category=djellaba"
                 className="btn-outline border-white text-white hover:bg-white hover:text-primary-700"
               >
                 {t('viewCollection')}

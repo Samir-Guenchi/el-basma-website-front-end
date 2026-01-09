@@ -15,7 +15,9 @@ export default function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeCategory, setActiveCategory] = useState(category || 'djellaba');
+  // Get category from URL params or query string
+  const categoryFromQuery = searchParams.get('category');
+  const [activeCategory, setActiveCategory] = useState(category || categoryFromQuery || 'djellaba');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // grid or list
   const [sortBy, setSortBy] = useState('newest');
@@ -25,10 +27,12 @@ export default function ProductsPage() {
   }, []);
 
   useEffect(() => {
-    if (category) {
-      setActiveCategory(category);
+    // Update category from URL params or query string
+    const newCategory = category || searchParams.get('category');
+    if (newCategory) {
+      setActiveCategory(newCategory);
     }
-  }, [category]);
+  }, [category, searchParams]);
 
   const fetchProducts = async () => {
     setError(null);
